@@ -46,9 +46,16 @@ module.exports = function (config) {
           debug('emitting event to channel %s', event);
           // Something is converting the second argument to a string here
           // So for now, pass the data as a string, and serialize back on other side
-          const result = JSON.stringify(data)
-          if (!result) return
-          return service.pub.publish(event, result, () => debug('event "%s" published', event));
+          try {
+            if(data instanceof Error) {
+              return
+            }
+            const result = JSON.stringify(data)
+            if (!result) return
+            return service.pub.publish(event, result, () => debug('event "%s" published', event));
+          } catch (error) {
+            return
+          }
         }
       });
 
